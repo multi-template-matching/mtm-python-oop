@@ -1,10 +1,11 @@
 """
 Generic Detection object with functions to compute intersection, union and IoU between detections.
+
 This class should be generic thanks to getter functions and not specific to a specific implementation
 Basically any Detection that fullfills the methods below should work
 Good for skimage not for opencv NMSBoxes
 """
-from shapely.geometry import polygon, box
+from shapely.geometry import polygon
 
 class BoundingBox(polygon.Polygon):
     """
@@ -12,7 +13,7 @@ class BoundingBox(polygon.Polygon):
 
     Parameters
     ----------
-    bbox tuple of 4 ints:
+    bbox, tuple of 4 ints:
         x,y, width, height dimensions of the rectangle outlining the detection with x,y the top left corner
 
     score, float:
@@ -48,12 +49,14 @@ class BoundingBox(polygon.Polygon):
         return self.template_index
 
     def __str__(self):
-        name = "({:.2f}, xyxy:{}".format(self.get_score(),
-                                          tuple(map(int, self.bounds))
+        name = "(BoundingBox, score:{:.2f}, xyxy:{}, index:{}".format(self.get_score(),
+                                          tuple(map(int, self.bounds)),
+                                          self.get_template_index()
                                           )
-        label = self.get_label()
-        if label != "" : name += "," + label
 
+        label = self.get_label()
+        if label:
+            name+= ", " + label
         name += ")"
 
         return name

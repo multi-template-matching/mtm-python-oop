@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import warnings
 from matplotlib.lines import Line2D
-from skimage import feature
+from skimage import feature, transform
 from .NMS import NMS
 from .Detection import BoundingBox
 
@@ -19,7 +19,7 @@ __version__ = '1.5.4'
 def findMaximas(corrMap, score_threshold=0.6, nObjects=float("inf")):
     """
     Maxima detection in correlation map.
-
+    
     Get coordinates of the global (nObjects=1)
     or local maximas with values above a threshold
     in the image of the correlation map.
@@ -44,33 +44,37 @@ def findMatches(image,
                 listLabels=None,
                 score_threshold=0.5,
                 nObjects=float("inf"),
-                searchBox=None):
+                searchBox=None,
+                downscaling_factor=1):
     """
     Find all possible templates locations provided a list of template to search and an image.
-
+    
     Parameters
     ----------
     - image  : Grayscale or RGB numpy array
               image in which to perform the search, it should be the same bitDepth and number of channels than the templates
-
+    
     - listTemplates : list of templates as grayscale or RGB numpy array
                       templates to search in each image
-
-    - listLabels (optional) : list of string labels associated to the templates (order must match).
+    
+    - listLabels (optional) : list of string labels associated to the templates (order must match the templates in listTemplates).
                               these labels can describe categories associated to the templates
-
     - nObjects: int
                 expected number of objects in the image
-
+   
     - score_threshold: float in range [0,1]
                 if N>1, returns local minima/maxima respectively below/above the score_threshold
-
-    - searchBox : tuple (X, Y, Width, Height) in pixel unit
-                optional rectangular search region as a tuple
-
+   
+    - searchBox (optional): tuple (x y, width, height) in pixels
+                limit the search to a rectangular sub-region of the image
+    
+    - downscaling_factor: int >= 1, default 1 (ie no downscaling)
+               speed up the search by downscaling the template and image before running the template matching.
+               Detected regions are then rescaled to original image sizes.
+               
     Returns
     -------
-    - list of hits encoded as [template index, score, (x,y,width, height)]
+    - List of BoundingBoxes
     """
     if nObjects != float("inf") and type(nObjects) != int:
         raise TypeError("nObjects must be an integer")
@@ -82,6 +86,9 @@ def findMatches(image,
        (len(listTemplates) != len(listLabels))):
         raise ValueError("There must be one label per template.")
 
+    if downscaling_factor < 1:
+        raise ValueError("Downscaling factor must be an integer over 1")
+
     # Crop image to search region if provided
     if searchBox is not None:
         xOffset, yOffset, searchWidth, searchHeight = searchBox
@@ -89,10 +96,16 @@ def findMatches(image,
                       xOffset:xOffset+searchWidth]
     else:
         xOffset = yOffset = 0
+    
+    if downscaling_factor != 1: # make a downscaled copy of the image
+        image = transform.rescale(image, 1/downscaling_factor, anti_aliasing = False)
 
     listHit = []
     for index, template in enumerate(listTemplates):
-
+        
+        if downscaling_factor != 1:  # make a downscaled copy of the current template
+            template = transform.rescale(template, 1/downscaling_factor, anti_aliasing = False)
+            
         corrMap = feature.match_template(image, template)
         listPeaks = findMaximas(corrMap, score_threshold, nObjects)
 
@@ -101,9 +114,9 @@ def findMatches(image,
 
         for peak in listPeaks:
             score = corrMap[tuple(peak)]
-            bbox = (int(peak[1]) + xOffset,
-                    int(peak[0]) + yOffset,
-                    width, height)
+            bbox = (int(peak[1]) * downscaling_factor + xOffset,
+                    int(peak[0]) * downscaling_factor + yOffset,
+                    width * downscaling_factor, height * downscaling_factor)
 
             hit = BoundingBox(bbox, score, index, label)
             listHit.append(hit)  # append to list of potential hit before Non maxima suppression
@@ -117,66 +130,84 @@ def matchTemplates(image,
                    score_threshold=0.5,
                    maxOverlap=0.25,
                    nObjects=float("inf"),
-                   searchBox=None):
+                   searchBox=None,
+                   downscaling_factor=1):
     """
-    Search each template in the image, and return the best nObjects location which offer the best score and which do not overlap.
-
+    Search each template in the image, and return the best nObjects locations which offer the best score and which do not overlap.
+   
     Parameters
     ----------
-    - listTemplates : list of templates as 2D grayscale or RGB numpy array
-                      templates to search in each image, associated to a label
     - image  : Grayscale or RGB numpy array
                image in which to perform the search, it should be the same bitDepth and number of channels than the templates
+               
+    - listTemplates : list of templates as 2D grayscale or RGB numpy array
+                      templates to search in each image
+    
+    - listLabels (optional) : list of strings
+                              labels, associated the templates. The order of the label must match the order of the templates in listTemplates.
+    
     - nObjects: int
                 expected number of objects in the image
+    
     - score_threshold: float in range [0,1]
                 if N>1, returns local minima/maxima respectively below/above the score_threshold
+    
     - maxOverlap: float in range [0,1]
                 This is the maximal value for the ratio of the Intersection Over Union (IoU) area between a pair of bounding boxes.
                 If the ratio is over the maxOverlap, the lower score bounding box is discarded.
-    - searchBox : tuple (X, Y, Width, Height) in pixel unit
-                optional rectangular search region as a tuple
-
+    
+    - searchBox : tuple (x y, width, height) in pixels
+                limit the search to a rectangular sub-region of the image
+                
+    - downscaling_factor: int >= 1, default 1 ie no downscaling
+               speed up the search by downscaling the template and image before running the template matching.
+               Detected regions are then rescaled to original image sizes.
+               
     Returns
     -------
-    Pandas DataFrame with 1 row per hit and column "TemplateName"(string), "BBox":(X, Y, Width, Height), "Score":float
-        if N=1, return the best matches independently of the score_threshold
-        if N<inf, returns up to N best matches that passed the score_threshold
-        if N=inf, returns all matches that passed the score_threshold
+    List of BoundingBoxes
+        if nObjects=1, return the best BoundingBox independently of the score_threshold and maxOverlap
+        if nObjects<inf, returns up to N best BoundingBoxes that passed the score_threshold and Non-Maxima Suppression
+        if nObjects='inf'(string), returns all BoundingBoxes that passed the score_threshold and Non-Maxima Suppression
+        
     """
     if maxOverlap<0 or maxOverlap>1:
         raise ValueError("Maximal overlap between bounding box is in range [0-1]")
 
-    listHit  = findMatches(image, listTemplates, listLabels, score_threshold, nObjects, searchBox)
+    listHit  = findMatches(image, listTemplates, listLabels, score_threshold, nObjects, searchBox, downscaling_factor)
     bestHits = NMS(listHit, maxOverlap, nObjects)
 
     return bestHits
 
 
-def plotDetections(image, listDetections, thickness=2, showLegend=False):
+def plotDetections(image, listDetections, thickness=2, showLegend=False, showScore=False):
     """
     Plot the detections overlaid on the image.
-
+   
     This generates a Matplotlib figure and displays it.
-
     Detections with identical template index (ie categories)
     are shown with identical colors.
-
+    
+    The figure can be further costumised after calling this function with following matplotlib.pyplot calls.
+    
     Parameters
     ----------
     - image  :
         image in which the search was performed
-
+    
     - listDetections:
         list of detections as returned by matchTemplates or findMatches
-
+    
     - thickness (optional, default=2): int
         thickness of plotted contour in pixels
-
+    
     - showLegend (optional, default=False): Boolean
         Display a legend panel with the category labels for each color.
         This works if the Detections have a label
         (not just "", in which case the legend is not shown).
+    
+    - showScore (optional, default=False): Boolean
+        Display the score of the corresponding hit next to a plotted contour.
     """
     plt.figure()
     plt.imshow(image, cmap="gray")  # cmap gray only impacts gray images
@@ -199,6 +230,13 @@ def plotDetections(image, listDetections, thickness=2, showLegend=False):
         plt.plot(*detection.get_lists_xy(),
                  linewidth=thickness,
                  color=color)
+
+        if showScore:
+            (x, y, width, height) = detection.get_xywh()
+            plt.annotate(round(detection.get_score(), 2),
+                         (x + width/3, y + height/3),
+                         ha="center",
+						 fontsize=height/4)
 
         # If show legend, get detection label and current color
         if showLegend:
@@ -225,3 +263,36 @@ def plotDetections(image, listDetections, thickness=2, showLegend=False):
                 legendEntries.append(Line2D([0], [0], color=color, lw=4))
 
             plt.legend(legendEntries, legendLabels)
+
+
+def rescale_bounding_boxes(listDetectionsDownscaled, downscaling_factor):
+    """
+    Rescale detected bounding boxes to the original image resolution, when downscaling was used for the detection.
+    
+    Parameters
+    ----------
+    - listDetections : list of BoundingBox items
+        List with 1 element per hit and each element containing "Score"(float), "BBox"(X, Y, X, Y), "Template_index"(int), "Label"(string)
+    
+    - downscaling_factor: int >= 1
+               allows to rescale by multiplying coordinates by the factor they were downscaled by
+    Returns
+    -------
+    listDetectionsupscaled : list of BoundingBox items
+        List with 1 element per hit and each element containing "Score"(float), "BBox"(X, Y, X, Y) (in coordinates of the full scale image), "Template_index"(int), "Label"(string)
+    """
+    listDetectionsUpscaled = []
+
+    for detection in listDetectionsDownscaled:
+        
+        # Compute rescaled coordinates 
+        xywh_upscaled = [coordinate * downscaling_factor for coordinate in detection.get_xywh() ]
+
+        detectionUpscaled = BoundingBox(xywh_upscaled, 
+                                        detection.get_score(), 
+                                        detection.get_template_index(), 
+                                        detection.get_label())
+
+        listDetectionsUpscaled.append(detectionUpscaled)
+
+    return listDetectionsUpscaled            

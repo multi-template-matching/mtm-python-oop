@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Non-Maxima Supression (NMS) for match template
+Non-Maxima Supression (NMS) for match template.
+
 From a pool of bounding box each predicting possible object locations with a given score,
 the NMS removes the bounding boxes overlapping with a bounding box of higher score above the maxOverlap threshold
 
@@ -14,9 +15,20 @@ from __future__ import division, print_function # for compatibility with Py2
 
 
 def computeIoU(detection1, detection2):
-    '''
-    Compute the IoU (Intersection over Union) between 2 Detections object
-    '''
+    """
+    Compute the IoU (Intersection over Union) between 2 Detections object.
+    
+    Parameters
+    ----------
+    detection1, detection2 : Boundingbox object
+        Two items to compute the IoU on
+
+    Returns
+    -------
+    float:
+        Float between 0 and 1
+        Intersection over Union value of detection1 and detection2
+    """
     if not (detection1.overlaps(detection2) or
             detection1.contains(detection2) or
             detection2.contains(detection1)):
@@ -30,7 +42,7 @@ getScore = lambda detection: detection.get_score()
 
 def NMS(listDetections, maxOverlap=0.5, nObjects=float("inf"), sortDescending=True):
     """
-    Overlap-based Non-Maxima Supression for bounding-boxes.
+    Overlap-based Non-Maxima Supression for Detections.
 
     it compares the hits after maxima/minima detection, and removes the ones that are too close (too large overlap)
     This function works with an optional expected number of objects to detect.
@@ -45,13 +57,16 @@ def NMS(listDetections, maxOverlap=0.5, nObjects=float("inf"), sortDescending=Tr
 
     Parameters
     ----------
-    listDetections : list of lists or tuples
-        list containing hits each encoded as a list [score, bbox, index], bboxes are encoded as (x,y,width, height).
+    listDetections : list of Detections
+                     typically a list of BoundingBoxes, but it works with any Detection object that extends a shapely.Polygon
+    
     sortDescending : boolean, optional
         Should be True when high score means better prediction (Correlation score), False otherwise (Difference-based score). The default is True.
+    
     nObjects : integer or float("inf"), optional
         Maximum number of hits to return (for instance when the number of object in the image is known)
         The default is float("inf").
+    
     maxOverlap : float, optional
         Float between 0 and 1.
         Maximal overlap authorised between 2 bounding boxes. Above this value, the bounding box of lower score is deleted.
@@ -59,7 +74,6 @@ def NMS(listDetections, maxOverlap=0.5, nObjects=float("inf"), sortDescending=Tr
 
     Returns
     -------
-    list
     List of best detections after NMS, it contains max nObjects detections (but potentially less)
     """
     if len(listDetections)<=1:
