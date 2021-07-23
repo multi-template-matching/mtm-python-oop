@@ -113,7 +113,8 @@ def findMatches(image,
             score = corrMap[tuple(peak)]
             bbox = (int(peak[1]) * downscaling_factor + xOffset,
                     int(peak[0]) * downscaling_factor + yOffset,
-                    width * downscaling_factor, height * downscaling_factor)
+                    width * downscaling_factor, 
+                    height * downscaling_factor) # TODO cast all coordinates to int
 
             hit = BoundingBox(bbox, score, index, label)
             listHit.append(hit)  # append to list of potential hit before Non maxima suppression
