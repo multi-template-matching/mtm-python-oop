@@ -3,6 +3,7 @@ Make sure the active directory is the directory of the repo when running the tes
 """
 from skimage.data import coins
 import MTM
+from MTM.Detection import plotDetections
 print( MTM.__version__ )
 import numpy as np
 
@@ -32,4 +33,7 @@ print("Found {} coins".format(len(finalHits)))
 print (np.array(finalHits)) # better formatting with array
 
 #%% Display matches
-MTM.plotDetections(image, finalHits, showLegend=True, showScore=True)
+plotDetections(image, 
+               finalHits, 
+               showLegend=True, 
+               showScore=True)
