@@ -137,10 +137,10 @@ class BoundingBox(polygon.Polygon):
         return self.template_index
 
     def __str__(self):
-        name = "(BoundingBox, score:{:.2f}, xyxy:{}, index:{}".format(self.get_score(),
-                                          tuple(map(int, self.bounds)),
-                                          self.get_template_index()
-                                          )
+        name = "(BoundingBox, score:{:.2f}, xywh:{}, index:{}".format(self.get_score(),
+                                                                      self.get_xywh(),
+                                                                      self.get_template_index()
+                                                                      )
 
         label = self.get_label()
         if label:
