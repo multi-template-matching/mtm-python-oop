@@ -94,7 +94,7 @@ def findMatches(image,
     else:
         xOffset = yOffset = 0
     
-    if downscaling_factor != 1: # make a downscaled copy of the image
+    if downscaling_factor != 1: # make a downscaled copy of the image, dont use anti-aliasing to keep small structure and faster
         image = transform.rescale(image, 1/downscaling_factor, anti_aliasing = False)
 
     listHit = []
@@ -111,10 +111,12 @@ def findMatches(image,
 
         for peak in listPeaks:
             score = corrMap[tuple(peak)]
-            bbox = (int(peak[1]) * downscaling_factor + xOffset,
-                    int(peak[0]) * downscaling_factor + yOffset,
-                    width * downscaling_factor, 
-                    height * downscaling_factor) # TODO cast all coordinates to int
+            
+            # bounding-box dimensions
+            # resized to the original image size (hence x downscaling factor)
+            xy = np.array(peak[::-1]) * downscaling_factor + (xOffset, yOffset) # -1 since peak is in (i, j) while we want (x,y) coordinates
+            bbox = tuple(xy) + (width  * downscaling_factor, 
+                                height * downscaling_factor) # in theory we could use original template width/height before downscaling, but using the size of the actually used template is more correct 
 
             hit = BoundingBox(bbox, score, index, label)
             listHit.append(hit)  # append to list of potential hit before Non maxima suppression
