@@ -23,7 +23,8 @@ The [wiki](https://github.com/multi-template-matching/MultiTemplateMatching-Fiji
 # Citation
 If you use this implementation for your research, please cite:
   
-Thomas, L.S.V., Gehrig, J. Multi-template matching: a versatile tool for object-localization in microscopy images.  
+Thomas, L.S.V., Gehrig, J.  
+_Multi-template matching: a versatile tool for object-localization in microscopy images_  
 BMC Bioinformatics 21, 44 (2020). https://doi.org/10.1186/s12859-020-3363-7
 
 # Related projects
