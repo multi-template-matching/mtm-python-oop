@@ -6,10 +6,10 @@ Detected locations are represented as bounding boxes.
 """
 import numpy as np
 from skimage import feature, transform
-from .NMS import NMS
-from .Detection import BoundingBox
+from .nms import NMS
+from .detection import BoundingBox
 
-__all__ = ['NMS']
+__all__ = ['nms']
 __version__ = '1.5.4'
 
 
