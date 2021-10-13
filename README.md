@@ -3,6 +3,7 @@
 # Multi-Template-Matching
 Multi-Template-Matching is a package to perform object-recognition in images using one or several smaller template images.  
 This implementation relies on the packages scikit-image and shapely, but not on OpenCV contrary to the other implementation originally published.  
+It is more objcet-oriented, especially it should be easier to adapt to other shapes (detection with rectangular template but outline detected region with a non-rectangular shape), by implementing another type of Detection object.  
 
 The template and images should have the same bitdepth (8,16,32-bit) and number of channels (single/Grayscale or RGB).  
 The main function `MTM.matchTemplates` returns the best predicted locations provided either a score_threshold and/or the expected number of objects in the image.  
