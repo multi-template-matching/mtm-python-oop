@@ -66,7 +66,7 @@ def plotDetections(image, listDetections, thickness=2, showLegend=False, showSco
             plt.annotate(round(detection.get_score(), 2),
                          (x + width/3, y + height/3),
                          ha="center",
-						 fontsize=height/4)
+                         fontsize=height/4)
 
         # If show legend, get detection label and current color
         if showLegend:
