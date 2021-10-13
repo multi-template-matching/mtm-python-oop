@@ -4,8 +4,8 @@ with open("README.md", "r") as fh:
 	long_description = fh.read()
 
 setuptools.setup(
-	name="Multi-Template-Matching",
-	version="1.5.3",
+	name="mtm-skimage-shapely",
+	version="1.0.0",
 	author="Laurent Thomas",
 	author_email="laurent132.thomas@laposte.net",
 	description="Object-recognition in images using multiple templates",
