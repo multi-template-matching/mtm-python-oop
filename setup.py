@@ -17,7 +17,8 @@ setuptools.setup(
 	install_requires=[
 		  'numpy',
 		  'scikit-image',
-		  "shapely"
+		  "shapely",
+          "matplotlib"
 		  ],
 	classifiers=[
 		"Programming Language :: Python :: 3",
