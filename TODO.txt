@@ -1,2 +1,1 @@
 - Reorder parameter order in docstring for MTM.matchtemplates
-- create "model" class Detection in detection.py

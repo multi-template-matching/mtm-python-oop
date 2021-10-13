@@ -8,6 +8,7 @@ Good for skimage not for opencv NMSBoxes
 from shapely.geometry import polygon
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+from abc import ABC, abstractmethod 
 import warnings
 
 def plotDetections(image, listDetections, thickness=2, showLegend=False, showScore=False):
@@ -94,8 +95,67 @@ def plotDetections(image, listDetections, thickness=2, showLegend=False, showSco
 
             plt.legend(legendEntries, legendLabels)
 
+class Detection(ABC):
+    """Abstract 'model' class describing a detection."""
+    
+    @abstractmethod
+    def get_label(self):
+        """Return the label associated to this detection (ex a category)."""
+        pass
+    
+    @abstractmethod
+    def get_score(self):
+        """Return the score for this detection."""
+        pass
+    
+    @abstractmethod
+    def get_template_index(self):
+        """
+        Return the positional index of the template
+        associated to this detection in the original list of templates.
+        """
+        pass
+    
+    @abstractmethod
+    def intersection_area(self, detection2):
+        """Return the intersection area in pixels, with another detection."""
+        pass
+    
+    @abstractmethod
+    def union_area(self, detection2):
+        """Compute the union area between this detection and another detection."""
+        pass
+    
+    def intersection_over_union(self, detection2):
+        """
+        Compute the ratio intersection/union (IoU) between this detection and another detection.
+        The IoU is 1 is the shape fully overlap (ie identical sizes and positions).
+        It is 0 if they dont overlap.
+        """
+        return self.intersection_area(detection2)/self.union_area(detection2)
+    
+    @abstractmethod
+    def get_lists_xy(self):
+        """
+        Return a tuple of 2 arrays for x and y coordinates.
 
-class BoundingBox(polygon.Polygon):
+        The lists correspond to the coordinates
+        for the summits of the detection shape.
+        """
+        pass
+    
+    @abstractmethod
+    def overlaps(self, detection2):
+        """Return true if 2 detection overlap."""
+        pass
+    
+    @abstractmethod
+    def contains(self, detection2):
+        """Return true if detection2 is fully included within detection 1."""
+        pass
+
+
+class BoundingBox(polygon.Polygon, Detection):
     """
     Describe a detection as a rectangular axis-aligned bounding box.
 
@@ -123,17 +183,12 @@ class BoundingBox(polygon.Polygon):
         self.label = label
 
     def get_label(self):
-        """Return the label associated to this detection (ex a category)."""
         return self.label
 
     def get_score(self):
         return self.score
 
     def get_template_index(self):
-        """
-        Return the positional index of the template
-        associated to this detection in the original list of templates.
-        """
         return self.template_index
 
     def __str__(self):
@@ -173,12 +228,6 @@ class BoundingBox(polygon.Polygon):
         return self.intersection_area(detection2)/self.union_area(detection2)
 
     def get_lists_xy(self):
-        """
-        Return a tuple of 2 arrays for x and y coordinates.
-
-        The lists correspond to the coordinates
-        for the corners of the detection shape.
-        """
         return self.exterior.xy
     
     @staticmethod
@@ -212,20 +261,11 @@ class BoundingBox(polygon.Polygon):
     
             listDetectionsUpscaled.append(detectionUpscaled)
     
-        return listDetectionsUpscaled       
-
-    """
-    # If you were using a different implementation for Detection objects
-    # These 2 functions should also be implemented
-    # Here they are inherited from shapely's Polygon
-    def overlaps(self, detection2):
-    def contains(self, detection2)
-    """
-
+        return listDetectionsUpscaled
 
 if __name__ == "__main__":
     detection = BoundingBox((0, 0, 10, 10), 0.5, label="Test")
-    nolabel = BoundingBox((0, 0, 10, 10), 0.5)
+    nolabel   = BoundingBox((0, 0, 10, 10), 0.5)
 
     print(detection)
     print(nolabel)
