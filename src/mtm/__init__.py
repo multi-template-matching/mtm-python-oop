@@ -6,8 +6,8 @@ Detected locations are represented as bounding boxes.
 """
 import numpy as np
 from skimage import feature, transform
-from .nms import NMS
-from .detection import BoundingBox
+from . import nms
+from . import detection
 
 __all__ = ['nms']
 __version__ = '1.5.4'
@@ -118,7 +118,7 @@ def findMatches(image,
             bbox = tuple(xy) + (width  * downscaling_factor, 
                                 height * downscaling_factor) # in theory we could use original template width/height before downscaling, but using the size of the actually used template is more correct 
 
-            hit = BoundingBox(bbox, score, index, label)
+            hit = detection.BoundingBox(bbox, score, index, label)
             listHit.append(hit)  # append to list of potential hit before Non maxima suppression
 
     return listHit  # All possible hits before Non-Maxima Supression
@@ -175,6 +175,6 @@ def matchTemplates(image,
         raise ValueError("Maximal overlap between bounding box is in range [0-1]")
 
     listHit  = findMatches(image, listTemplates, listLabels, score_threshold, nObjects, searchBox, downscaling_factor)
-    bestHits = NMS(listHit, maxOverlap, nObjects)
+    bestHits = nms.NMS(listHit, maxOverlap, nObjects)
 
     return bestHits     
