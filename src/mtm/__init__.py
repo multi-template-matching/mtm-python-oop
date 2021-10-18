@@ -9,8 +9,7 @@ from skimage import feature, transform
 from . import nms
 from . import detection
 
-__all__ = ['nms']
-__version__ = '1.5.4'
+__version__ = '1.0.1'
 
 
 def findMaximas(corrMap, score_threshold=0.6, nObjects=float("inf")):
