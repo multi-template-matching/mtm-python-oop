@@ -93,7 +93,17 @@ def findMatches(image,
     else:
         xOffset = yOffset = 0
     
-    if downscaling_factor != 1: # make a downscaled copy of the image, dont use anti-aliasing to keep small structure and faster
+    # Check template smaller than image (or search region)
+    for index, template in enumerate(listTemplates):
+        
+        templateSmallerThanImage = all(templateDim <= imageDim for templateDim, imageDim in zip(template.shape, image.shape))
+        
+        if not templateSmallerThanImage :
+            fitIn = "searchBox" if (searchBox is not None) else "image"
+            raise ValueError("Template '{}' at index {} in the list of templates is larger than {}.".format(template, index, fitIn) )
+    
+    # make a downscaled copy of the image if downscalingFactor != 1
+    if downscaling_factor != 1: # dont use anti-aliasing to keep small structure and faster
         image = transform.rescale(image, 1/downscaling_factor, anti_aliasing = False)
 
     listHit = []
