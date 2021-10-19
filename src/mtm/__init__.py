@@ -55,12 +55,14 @@ def findMatches(image,
     
     - listLabels (optional) : list of string labels associated to the templates (order must match the templates in listTemplates).
                               these labels can describe categories associated to the templates
-    - nObjects: int
-                expected number of objects in the image
-   
+                              
     - score_threshold: float in range [0,1]
                 if N>1, returns local minima/maxima respectively below/above the score_threshold
    
+    - nObjects: 1 or infinity (default)
+                If N=1 use global maxima detection, otherwise use local maxima detection
+   
+
     - searchBox (optional): tuple (x y, width, height) in pixels
                 limit the search to a rectangular sub-region of the image
     
@@ -155,15 +157,15 @@ def matchTemplates(image,
     - listLabels (optional) : list of strings
                               labels, associated the templates. The order of the label must match the order of the templates in listTemplates.
     
-    - nObjects: int
-                expected number of objects in the image
-    
     - score_threshold: float in range [0,1]
                 if N>1, returns local minima/maxima respectively below/above the score_threshold
     
     - maxOverlap: float in range [0,1]
                 This is the maximal value for the ratio of the Intersection Over Union (IoU) area between a pair of bounding boxes.
                 If the ratio is over the maxOverlap, the lower score bounding box is discarded.
+    
+    - nObjects: int
+               expected number of objects in the image
     
     - searchBox : tuple (x y, width, height) in pixels
                 limit the search to a rectangular sub-region of the image
