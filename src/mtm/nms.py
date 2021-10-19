@@ -40,7 +40,7 @@ def computeIoU(detection1, detection2):
 # Helper function for the sorting of the list based on score
 getScore = lambda detection: detection.get_score()
 
-def NMS(listDetections, maxOverlap=0.5, nObjects=float("inf"), sortDescending=True):
+def runNMS(listDetections, maxOverlap=0.5, nObjects=float("inf"), sortDescending=True):
     """
     Overlap-based Non-Maxima Supression for Detections.
 
