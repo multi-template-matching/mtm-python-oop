@@ -120,15 +120,17 @@ def runNMS(listDetections, maxOverlap=0.5, nObjects=float("inf"), sortDescending
 
 
 if __name__ == "__main__":
-    from Detection import BoundingBox
+    
+    from mtm.detection import BoundingBox
+    
     listDetections = [
         BoundingBox((780, 350, 700, 480), 0.8),
         BoundingBox((806, 416, 716, 442), 0.6),
         BoundingBox((1074, 530, 680, 390), 0.4)
         ]
 
-    finalHits = NMS(listDetections,
-                    sortDescending=True,
-                    maxOverlap=0.5,
-                    nObjects=2)
+    finalHits = runNMS(listDetections,
+                        sortDescending=True,
+                        maxOverlap=0.5,
+                        nObjects=2)
     print(finalHits)
