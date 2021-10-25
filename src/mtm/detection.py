@@ -174,12 +174,12 @@ class BoundingBox(polygon.Polygon, Detection):
         label for the detection (e.g. a category name or template name)
     """
 
-    def __init__(self, bbox, score, template_index=0, label=""):
+    def __init__(self, bbox, score, templateIndex=0, label=""):
         x, y, width, height = bbox
         super().__init__( [(x,y), (x+width-1,y), (x+width-1, y+height-1), (x, y+height-1)] )
         self.xywh = bbox
         self.score = score
-        self.template_index = template_index
+        self.templateIndex = templateIndex
         self.label = label
 
     def get_label(self):
@@ -189,7 +189,7 @@ class BoundingBox(polygon.Polygon, Detection):
         return self.score
 
     def get_template_index(self):
-        return self.template_index
+        return self.templateIndex
 
     def __str__(self):
         name = "(BoundingBox, score:{:.2f}, xywh:{}, index:{}".format(self.get_score(),
