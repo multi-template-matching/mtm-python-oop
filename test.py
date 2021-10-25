@@ -2,9 +2,9 @@
 Make sure the active directory is the directory of the repo when running the test in a IDE.
 """
 from skimage.data import coins
-import MTM
-from MTM.Detection import plotDetections
-print( MTM.__version__ )
+import mtm
+from mtm.detection import plotDetections
+print( mtm.__version__ )
 import numpy as np
 
 #%% Get image and templates by cropping
@@ -20,13 +20,13 @@ listTemplates = [smallCoin, bigCoin]
 
 
 #%% Perform matching
-listHit      = MTM.findMatches(image, listTemplates, listLabels)
-singleObject = MTM.findMatches(image, listTemplates, listLabels, nObjects=1)  # there should be 1 top hit per template
+listHit      = mtm.findMatches(image, listTemplates, listLabels)
+singleObject = mtm.findMatches(image, listTemplates, listLabels, nObjects=1)  # there should be 1 top hit per template
 
-finalHits = MTM.matchTemplates(image,
+finalHits = mtm.matchTemplates(image,
                                listTemplates,
                                listLabels,
-                               score_threshold=0.4,
+                               scoreThreshold=0.4,
                                maxOverlap=0)
 
 print("Found {} coins".format(len(finalHits)))
