@@ -21,7 +21,7 @@ listTemplates = [smallCoin, bigCoin]
 
 #%% Perform matching
 listHit      = mtm.findMatches(image, listTemplates, listLabels)
-singleObject = mtm.findMatches(image, listTemplates, listLabels, nObjects=1)  # there should be 1 top hit per template
+singleObject = mtm.findMatches(image, listTemplates, listLabels, singleMatch=True) # there should be 1 top hit per template
 
 finalHits = mtm.matchTemplates(image,
                                listTemplates,

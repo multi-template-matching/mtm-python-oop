@@ -12,26 +12,26 @@ from . import detection
 __version__ = '1.0.1'
 
 
-def findMaximas(corrMap, scoreThreshold=0.6, nObjects=float("inf")):
+def findMaximas(corrMap, scoreThreshold=0.6, singleMatch=False):
     """
     Maxima detection in correlation map.
     
-    Get coordinates of the global (nObjects=1)
-    or local maximas with values above a threshold
-    in the image of the correlation map.
+    Get coordinates of the global (singleMatch=True)
+    or local maximas with values above the scoreThreshold.
     """
     # IF depending on the shape of the correlation map
     if corrMap.shape == (1, 1):  # Template size = Image size -> Correlation map is a single digit representing the score
         listPeaks = np.array([[0, 0]]) if corrMap[0, 0] >= scoreThreshold else []
 
     else:  # Correlation map is a 1D or 2D array
-        nPeaks = 1 if nObjects == 1 else float("inf")  # global maxima detection if nObject=1 (find best hit of the score map)
+        nPeaks = 1 if singleMatch else float("inf")  # global maxima detection if singleMatch (ie find best hit of the score map)
+       
         # otherwise local maxima detection (ie find all peaks), DONT LIMIT to nObjects, more than nObjects detections might be needed for NMS
         listPeaks = feature.peak_local_max(corrMap,
                                            threshold_abs=scoreThreshold,
                                            exclude_border=False,
                                            num_peaks=nPeaks).tolist()
-
+        
     return listPeaks
 
 
@@ -39,11 +39,13 @@ def findMatches(image,
                 listTemplates,
                 listLabels=None,
                 scoreThreshold=0.5,
-                nObjects=float("inf"),
+                singleMatch=False,
                 searchBox=None,
                 downscalingFactor=1):
     """
-    Find all possible templates locations provided a list of template to search and an image.
+    Find all possible templates locations above a score-threshold, provided a list of templates to search and an image.
+    Resulting detections are not filtered by NMS and thus might overlap.
+    Use matchTemplates to perform the search with NMS.
     
     Parameters
     ----------
@@ -55,14 +57,14 @@ def findMatches(image,
     
     - listLabels (optional) : list of string labels associated to the templates (order must match the templates in listTemplates).
                               these labels can describe categories associated to the templates
-                              
+                                  
     - scoreThreshold: float in range [0,1]
-                if N>1, returns local minima/maxima respectively below/above the scoreThreshold
-   
-    - nObjects: 1 or infinity (default)
-                If N=1 use global maxima detection, otherwise use local maxima detection
-   
-
+                if singleMatch is False, returns local maxima with score above the scoreThreshold
+    
+    - singleMatch : boolean
+                    True : return a single top-score detection for each template using global maxima detection. This is suitable for single-object-detection.
+                    False : use local maxima detection to find all possible template locations above the score threshold, suitable for detection of mutliple objects.
+                    
     - searchBox (optional): tuple (x y, width, height) in pixels
                 limit the search to a rectangular sub-region of the image
     
@@ -74,11 +76,6 @@ def findMatches(image,
     -------
     - List of BoundingBoxes
     """
-    if nObjects != float("inf") and type(nObjects) != int:
-        raise TypeError("nObjects must be an integer")
-
-    if nObjects < 1:
-        raise ValueError("At least one object should be expected in the image")
 
     if (listLabels is not None and
        (len(listTemplates) != len(listLabels))):
@@ -115,7 +112,7 @@ def findMatches(image,
             template = transform.rescale(template, 1/downscalingFactor, anti_aliasing = False)
             
         corrMap = feature.match_template(image, template)
-        listPeaks = findMaximas(corrMap, scoreThreshold, nObjects)
+        listPeaks = findMaximas(corrMap, scoreThreshold, singleMatch)
 
         height, width = template.shape[0:2]  # slicing make sure it works for RGB too
         label = listLabels[index] if listLabels else ""
@@ -184,8 +181,9 @@ def matchTemplates(image,
     """
     if maxOverlap<0 or maxOverlap>1:
         raise ValueError("Maximal overlap between bounding box is in range [0-1]")
-
-    listHit  = findMatches(image, listTemplates, listLabels, scoreThreshold, nObjects, searchBox, downscalingFactor)
+        
+    singleMatch = nObjects == 1
+    listHit  = findMatches(image, listTemplates, listLabels, scoreThreshold, singleMatch, searchBox, downscalingFactor)
     bestHits = nms.runNMS(listHit, maxOverlap, nObjects)
 
     return bestHits     
