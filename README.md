@@ -1,21 +1,27 @@
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/multi-template-matching/mtm-skimage-shapely/main?filepath=tutorials)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/multi-template-matching/mtm-python-oop/main?filepath=tutorials)
 
 # Multi-Template-Matching
-Multi-Template-Matching is a package to perform object-recognition in images using one or several smaller template images.  
-This implementation relies on the packages scikit-image and shapely, but not on OpenCV contrary to the other implementation originally published.  
-It is more objcet-oriented, especially it should be easier to adapt to other shapes (detection with rectangular template but outline detected region with a non-rectangular shape), by implementing another type of Detection object.  
+Multi-Template-Matching is an accessible method to perform object-detection in images using one or several template images for the search.  
+The strength of the method compared to previously available single-template matching, is that by combining the detections from multiple templates,
+one can improve the range of detectable patterns. This helps if you expect variability of the object-perspective in your images, such as rotation, flipping...  
+The detections from the different templates are not simply combined, they are filtered using Non-Maxima Supression (NMS) to prevent overlapping detections.  
 
-The template and images should have the same bitdepth (8,16,32-bit) and number of channels (single/Grayscale or RGB).  
-The main function `MTM.matchTemplates` returns the best predicted locations provided either a score_threshold and/or the expected number of objects in the image.  
+The python implementations of mtm only perform the detection and filtering with NMS.  
+For the templates, you can provde a list of images to use. You can also perform geometrical transformation (kind of data augmentation) of existing templates if you expect these transformation in the image (ex: rotation/flipping).  
+
+This implementation relies on the packages scikit-image and shapely, but not on OpenCV contrary to the python implementation originally published (and still available).  
+It is more object-oriented, especially it should be easier to adapt to other shapes (detection with rectangular template but outlining detected region with a non-rectangular shape), by implementing another type of Detection object.  
+In this implementation the detection are of type `BoundingBox` which is derived from the shapely `Polygon` class. Therefore you can use all functions available for Polygon with a BoundingBox.  
+
+The main function `mtm.matchTemplates` returns the best predicted locations provided a scoreThreshold and an optional number of objects expected in the image.  
+
+The website of the project https://multi-template-matching.github.io/Multi-Template-Matching/ references most of the information, including presetnations, posters and recorded talks/tutorials.  
 
 # Installation  
 Coming soon.  
 
-# Documentation
-Coming soon.  
-
 # Examples
-Check out the [jupyter notebook tutorial](https://github.com/multi-template-matching/MultiTemplateMatching-Python/tree/master/tutorials) for some example of how to use the package.  
+Check out the [jupyter notebook tutorial](https://github.com/multi-template-matching/mtm-python-oop/tree/master/tutorials) for some example of how to use the package.  
 You can run the tutorials online using Binder, no configuration needed ! (click the Binder banner on top of this page).  
 To run the tutorials locally, install the package using pip as described above, then clone the repository and unzip it.  
 Finally open a jupyter-notebook session in the unzipped folder to be able to open and execute the notebook.  
