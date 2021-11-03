@@ -155,7 +155,7 @@ class Detection(ABC):
         pass
 
 
-class BoundingBox(polygon.Polygon, Detection):
+class BoundingBox(Detection):
     """
     Describe a detection as a rectangular axis-aligned bounding box.
 
@@ -176,7 +176,7 @@ class BoundingBox(polygon.Polygon, Detection):
 
     def __init__(self, bbox, score, templateIndex=0, label=""):
         x, y, width, height = bbox
-        super().__init__( [(x,y), (x+width-1,y), (x+width-1, y+height-1), (x, y+height-1)] )
+        self.polygon = polygon.Polygon( [(x,y), (x+width-1,y), (x+width-1, y+height-1), (x, y+height-1)] )
         self.xywh = bbox
         self.score = score
         self.templateIndex = templateIndex
@@ -211,25 +211,31 @@ class BoundingBox(polygon.Polygon, Detection):
     def __repr__(self):
         return self.__str__()
 
-    def intersection_area(self, detection2):
+    def intersection_area(self, bbox2):
         """Compute the interesection area between this bounding-box and another detection (bounding-box or other shape)."""
-        return self.intersection(detection2).area
+        return self.polygon.intersection(bbox2.polygon).area
 
-    def union_area(self, detection2):
+    def union_area(self, bbox2):
         """Compute the union area between this bounding-box and another detection (bounding-box or other shape)."""
-        return self.union(detection2).area
+        return self.polygon.union(bbox2.polygon).area
 
-    def intersection_over_union(self, detection2):
+    def intersection_over_union(self, bbox2):
         """
         Compute the ratio intersection/union (IoU) between this bounding-box and another detection (bounding-box or other shape).
         The IoU is 1 is the shape fully overlap (ie identical sizes and positions).
         It is 0 if they dont overlap.
         """
-        return self.intersection_area(detection2)/self.union_area(detection2)
+        return self.intersection_area(bbox2)/self.union_area(bbox2)
 
     def get_lists_xy(self):
-        return self.exterior.xy
+        return self.polygon.exterior.xy
     
+    def contains(self, bbox2):
+        return self.polygon.contains(bbox2.polygon)
+    
+    def overlaps(self, bbox2):
+        return self.polygon.overlaps(bbox2.polygon)
+        
     @staticmethod
     def rescale_bounding_boxes(listDetectionsDownscaled, downscaling_factor):
         """
