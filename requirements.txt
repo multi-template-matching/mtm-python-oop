@@ -1,0 +1,5 @@
+# This is a known configuration
+matplotlib == 3.4.3
+numpy == 1.18.5
+scikit-image == 0.18.3
+Shapely == 1.8.0
