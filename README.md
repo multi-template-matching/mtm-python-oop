@@ -4,21 +4,38 @@
 Multi-Template-Matching is an accessible method to perform object-detection in images using one or several template images for the search.  
 The strength of the method compared to previously available single-template matching, is that by combining the detections from multiple templates,
 one can improve the range of detectable patterns. This helps if you expect variability of the object-perspective in your images, such as rotation, flipping...  
-The detections from the different templates are not simply combined, they are filtered using Non-Maxima Supression (NMS) to prevent overlapping detections.  
+The detections from the different templates are not simply combined, they are filtered using Non-Maxima Suppression (NMS) to prevent overlapping detections.  
 
 The python implementations of mtm only perform the detection and filtering with NMS.  
-For the templates, you can provde a list of images to use. You can also perform geometrical transformation (kind of data augmentation) of existing templates if you expect these transformation in the image (ex: rotation/flipping).  
+For the templates, you can provide a list of images to use. You can also perform geometrical transformation (kind of data augmentation) of existing templates if you expect these transformation in the image (ex: rotation/flipping).  
 
 This implementation relies on the packages scikit-image and shapely, but not on OpenCV contrary to the python implementation originally published (and still available).  
 It is more object-oriented, especially it should be easier to adapt to other shapes (detection with rectangular template but outlining detected region with a non-rectangular shape), by implementing another type of Detection object.  
-In this implementation the detection are of type `BoundingBox` which is derived from the shapely `Polygon` class. Therefore you can use all functions available for Polygon with a BoundingBox.  
+In this python implementation, the detections are of type `BoundingBox` and hold a reference to a shapely `Polygon` object (a subtype of [geometric object](https://shapely.readthedocs.io/en/latest/manual.html#geometric-objects)).  
+While most functions required for multi-template-matching are directly available through the BoundingBox object, you can also use functions and attributes available to shapely Polygon by accessing the `polygon`attribute of a BoundingBox.  
 
-The main function `mtm.matchTemplates` returns the best predicted locations provided a scoreThreshold and an optional number of objects expected in the image.  
+Core functions available in mtm are : 
+
+- the main function `mtm.matchTemplates`  
+It returns the best predicted locations provided a scoreThreshold and an optional number of objects expected in the image.  
+It performs the search for each template followed by overlap-based Non-Maxima Suppression (NMS) to remove redundant/overlapping detections.  
+If a number N of expected object is mentioned, it returns at max N detection but potentially less depending on the score threshold.  
+
+- the function `mtm.findMatches`  
+It performs the search for each template and return all detections above the score-threshold, or a single top-score detection for each template if `singleMatch` is true.  
+Contrary to `mtm.matchTemplates`, __it does not perform NMS__ so you will potentially get overlapping detections.  
+Usually one should use directly `mtm.matchTemplates`.  
 
 The website of the project https://multi-template-matching.github.io/Multi-Template-Matching/ references most of the information, including presetnations, posters and recorded talks/tutorials.  
 
 # Installation  
-Coming soon.  
+Open a command prompt (or Anaconda prompt if using Anaconda) and type  
+`pip install mtm` 
+
+For development purpose, you can clone/download this repo, open a command prompt in the root directory of the repo and use pip to install the package in editable mode.  
+`pip install -e .`  
+mind the dot specifying to use the active directory (ie the one you open the prompt in).  
+In editable mode, any change to the source code is directly reflected the next time you import the package.  
 
 # Examples
 Check out the [jupyter notebook tutorial](https://github.com/multi-template-matching/mtm-python-oop/tree/master/tutorials) for some example of how to use the package.  
