@@ -1,6 +1,6 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/multi-template-matching/mtm-python-oop/main?filepath=tutorials)
 
-# Multi-Template-Matching
+# Multi-Template-Matching (mtm) : the object-oriented python implementation  
 Multi-Template-Matching is an accessible method to perform object-detection in images using one or several template images for the search.  
 The strength of the method compared to previously available single-template matching, is that by combining the detections from multiple templates,
 one can improve the range of detectable patterns. This helps if you expect variability of the object-perspective in your images, such as rotation, flipping...  
@@ -26,7 +26,8 @@ It performs the search for each template and return all detections above the sco
 Contrary to `mtm.matchTemplates`, __it does not perform NMS__ so you will potentially get overlapping detections.  
 Usually one should use directly `mtm.matchTemplates`.  
 
-The website of the project https://multi-template-matching.github.io/Multi-Template-Matching/ references most of the information, including presetnations, posters and recorded talks/tutorials.  
+The website of the project https://multi-template-matching.github.io/Multi-Template-Matching/ references most of the information, including presentations, posters and recorded talks/tutorials.  
+The [wiki](https://github.com/multi-template-matching/MultiTemplateMatching-Fiji/wiki) section of this related repository also provides some information about the implementation.  
 
 # Installation  
 Open a command prompt (or Anaconda prompt if using Anaconda) and type  
@@ -40,9 +41,9 @@ In editable mode, any change to the source code is directly reflected the next t
 # Examples
 Check out the [jupyter notebook tutorial](https://github.com/multi-template-matching/mtm-python-oop/tree/master/tutorials) for some example of how to use the package.  
 You can run the tutorials online using Binder, no configuration needed ! (click the Binder banner on top of this page).  
-To run the tutorials locally, install the package using pip as described above, then clone the repository and unzip it.  
-Finally open a jupyter-notebook session in the unzipped folder to be able to open and execute the notebook.  
-The [wiki](https://github.com/multi-template-matching/MultiTemplateMatching-Fiji/wiki) section of this related repository also provides some information about the implementation.
+
+To run the tutorials locally, install the package using pip as described above, then clone/download the repository and unzip it.  
+Finally open a jupyter-notebook session in the unzipped folder to be able to open and execute the notebooks.  
 
 # Citation
 If you use this implementation for your research, please cite:
