@@ -1,6 +1,10 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/multi-template-matching/mtm-python-oop/main?filepath=tutorials)
 
 # Multi-Template-Matching (mtm) : the object-oriented python implementation  
+
+![coins](./images/coins.png)
+
+
 Multi-Template-Matching is an accessible method to perform object-detection in images using one or several template images for the search.  
 The strength of the method compared to previously available single-template matching, is that by combining the detections from multiple templates,
 one can improve the range of detectable patterns. This helps if you expect variability of the object-perspective in your images, such as rotation, flipping...  
