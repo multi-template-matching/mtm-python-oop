@@ -40,7 +40,7 @@ def plotDetections(image, listDetections, thickness=2, showLegend=False, showSco
     - showScore (optional, default=False): Boolean
         Display the score of the corresponding hit next to a plotted contour.
     """
-    plt.figure()
+    fig = plt.figure()
     plt.imshow(image, cmap="gray")  # cmap gray only impacts gray images
     # RGB are still displayed as color
 
@@ -94,6 +94,8 @@ def plotDetections(image, listDetections, thickness=2, showLegend=False, showSco
                 legendEntries.append(Line2D([0], [0], color=color, lw=4))
 
             plt.legend(legendEntries, legendLabels)
+    
+    return fig
 
 class Detection(ABC):
     """Abstract 'model' class describing a detection."""
